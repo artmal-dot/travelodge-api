@@ -1,5 +1,6 @@
 package com.example.travelodgeapi.hotel;
 
+import java.time.LocalDate;
 import java.util.List;
 
 import com.example.travelodgeapi.price.Price;
@@ -14,41 +15,51 @@ import jakarta.validation.constraints.Size;
 @Entity
 public class Hotel {
 	@Id
-	@JsonProperty("hotel_id")
+//	@JsonProperty("id")
 	private Long id;
 //	@JsonIgnore
 //	@JsonProperty("hotelika_codzik")
 	@Size(min = 2, max = 10)
 //	@Column(name = "hotelCode")
-	private String hotelCode;
+	private String code;
 
 //	@Column(name = "zzzzzzzzzzzz")
-	@JsonProperty("hotel_name")
-	@Size(min = 2, max = 50)
+//	@JsonProperty("hotel_name")
+	// @Size(min = 2, max = 50)
 	private String title;
-	
-	@OneToMany(mappedBy = "hotel" )
+	private String hotelUrl;
+	private double latitude;
+	private double longitude;
+	private LocalDate lastUpdated;
+
+	@OneToMany(mappedBy = "hotel")
 	@JsonIgnore
 	private List<Price> price;
-	
-//	private String hotelUrl;
-//	private String mainImage;
-//	private double lat;
-//	private double lon;
-//	private boolean isOpeningSoon;
-//	private LocalDate openingDate;
-//	private boolean hasAvailability;
-//	private boolean hasLowAvailability;
-//	private LocalDate fetchedDate;
 
-	public Hotel(long id, String hotelCode, String title) {
+	public Hotel() {
+		super();
+	}
+
+	/**
+	 * @param id
+	 * @param code
+	 * @param title
+	 * @param hotelUrl
+	 * @param latitude
+	 * @param longitude
+	 * @param lastUpdatedDate
+	 * @param price
+	 */
+	public Hotel(Long id, @Size(min = 2, max = 10) String code, String title, String hotelUrl, double latitude,
+			double longitude, LocalDate lastUpdated) {
 		super();
 		this.id = id;
-		this.hotelCode = hotelCode;
+		this.code = code;
 		this.title = title;
-	}
-	public Hotel() {
-		super();	
+		this.hotelUrl = hotelUrl;
+		this.latitude = latitude;
+		this.longitude = longitude;
+		this.lastUpdated = lastUpdated;
 	}
 
 	public Long getId() {
@@ -59,12 +70,12 @@ public class Hotel {
 		this.id = id;
 	}
 
-	public String getHotelCode() {
-		return hotelCode;
+	public String getCode() {
+		return code;
 	}
 
-	public void setHotelCode(String hotelCode) {
-		this.hotelCode = hotelCode;
+	public void setCode(String code) {
+		this.code = code;
 	}
 
 	public String getTitle() {
@@ -75,14 +86,51 @@ public class Hotel {
 		this.title = title;
 	}
 
+	public String getHotelUrl() {
+		return hotelUrl;
+	}
+
+	public void setHotelUrl(String hotelUrl) {
+		this.hotelUrl = hotelUrl;
+	}
+
+	public double getLatitude() {
+		return latitude;
+	}
+
+	public void setLatitude(double latitude) {
+		this.latitude = latitude;
+	}
+
+	public double getLongitude() {
+		return longitude;
+	}
+
+	public void setLongitude(double longitude) {
+		this.longitude = longitude;
+	}
+
+	public LocalDate getLastUpdatedDate() {
+		return lastUpdated;
+	}
+
+	public void setLastUpdatedDate(LocalDate lastUpdatedDate) {
+		this.lastUpdated = lastUpdatedDate;
+	}
+
 	public List<Price> getPrice() {
 		return price;
 	}
+
 	public void setPrice(List<Price> price) {
 		this.price = price;
 	}
+
 	@Override
 	public String toString() {
-		return "Hotel [id=" + id + ", hotelCode=" + hotelCode + ", title=" + title + "]";
+		return "Hotel [id=" + id + ", code=" + code + ", title=" + title + ", hotelUrl=" + hotelUrl + ", latitude="
+				+ latitude + ", longitude=" + longitude + ", lastUpdated=" + lastUpdated + ", price=" + price
+				+ "]";
 	}
+
 }

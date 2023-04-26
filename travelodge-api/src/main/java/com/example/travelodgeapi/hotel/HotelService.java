@@ -14,6 +14,17 @@ public class HotelService {
 		return hotelRepository.findAll();
 	}
 
+	public void downloadAllHotelsDetails(){
+		DownloadHotelDetails.getAllHotelsDetails();			
+		hotelRepository.saveAll(DownloadHotelDetails.hotelsDetailsList);
+	}
+	
+	public Optional<Hotel> getHotelByCode(String code) {
+		return Optional.ofNullable(hotelRepository.findByCode(code));
+	}
+	
+	
+
 	public Hotel createHotel(Hotel hotel) {
 		return hotelRepository.save(hotel);
 	}
@@ -25,6 +36,7 @@ public class HotelService {
 	public void deleteHotelById(Long id) {
 		hotelRepository.deleteById(id);
 	}
+
 	public Optional<Hotel> getHotelById(Long id) {
 		return hotelRepository.findById(id);
 	}

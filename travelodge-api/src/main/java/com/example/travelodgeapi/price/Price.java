@@ -2,6 +2,7 @@ package com.example.travelodgeapi.price;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 import com.example.travelodgeapi.hotel.Hotel;
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -17,31 +18,17 @@ public class Price {
 	@Id
 	@GeneratedValue
 	private Long id;
+	
 	private LocalDate date;
 	private BigDecimal price;
-//	private LocalDateTime fetched;
+	private boolean hasAvailability;
+	private String url;
+	private LocalDateTime lastUpdated;
 	
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JsonIgnore
 	private Hotel hotel;
 
-	/**
-	 * @param id
-	 * @param date
-	 * @param price
-	 * @param hotel
-	 */
-	public Price(Long id, LocalDate date, BigDecimal price, Hotel hotel) {
-		super();
-		this.id = id;
-		this.date = date;
-		this.price = price;
-		this.hotel = hotel;
-	}
-
-	/**
-	 * 
-	 */
 	public Price() {
 		super();
 	}
@@ -50,12 +37,18 @@ public class Price {
 	 * @param id
 	 * @param date
 	 * @param price
+	 * @param availabilityStatus
+	 * @param hotel
 	 */
-	public Price(Long id, LocalDate date, BigDecimal price) {
+	public Price(Long id, LocalDate date, BigDecimal price, boolean availabilityStatus, String url,LocalDateTime lastUpdatedDateTime, Hotel hotel) {
 		super();
 		this.id = id;
 		this.date = date;
 		this.price = price;
+		this.hasAvailability = availabilityStatus;
+		this.hotel = hotel;
+		this.url = url;
+		this.lastUpdated = lastUpdatedDateTime;
 	}
 
 	public Long getId() {
@@ -82,6 +75,14 @@ public class Price {
 		this.price = price;
 	}
 
+	public boolean isAvailabilityStatus() {
+		return hasAvailability;
+	}
+
+	public void setAvailabilityStatus(boolean availabilityStatus) {
+		this.hasAvailability = availabilityStatus;
+	}
+
 	public Hotel getHotel() {
 		return hotel;
 	}
@@ -90,8 +91,32 @@ public class Price {
 		this.hotel = hotel;
 	}
 
+	public String getUrl() {
+		return url;
+	}
+
+	public void setUrl(String url) {
+		this.url = url;
+	}
+
+	
+	public LocalDateTime getLastUpdated() {
+		return lastUpdated;
+	}
+
+	public void setLastUpdated(LocalDateTime lastUpdated) {
+		this.lastUpdated = lastUpdated;
+	}
+
 	@Override
 	public String toString() {
-		return "Price [id=" + id + ", date=" + date + ", price=" + price + "]";
+		return "Price [id=" + id + ", date=" + date + ", price=" + price + ", hasAvailability=" + hasAvailability
+				+ ", url=" + url + ", lastUpdated=" + lastUpdated + ", hotel=" + hotel + "]";
 	}
+
+
+
+
+	
+
 }

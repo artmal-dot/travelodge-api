@@ -11,6 +11,8 @@ import org.springframework.stereotype.Component;
 
 import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateDeserializer;
 
+import jakarta.validation.constraints.Size;
+
 @Component
 public class HotelCommandRunner implements CommandLineRunner {
 	/*
@@ -40,6 +42,10 @@ public class HotelCommandRunner implements CommandLineRunner {
 
 	@Override
 	public void run(String... args) throws Exception {
+	/*
+		repository.save(new Hotel(1L, "code22", "Ealing", "URL sadwsadas",0.11, 32.2222, LocalDate.parse("2024-01-01")));
+		repository.save(new Hotel(2L, "code22", "Ealing", "URL sadwsadas",0.11, 32.2222, LocalDate.parse("2024-01-01")));
+		
 
 		repository.save(new Hotel(1L, "code22", "Ealing"));
 		repository.save(new Hotel(2L, "code33", "Acton london"));
@@ -57,6 +63,7 @@ public class HotelCommandRunner implements CommandLineRunner {
 
 		LocalTime currentTime = LocalTime.now();
 		LocalDateTime fromDateAndTime = LocalDateTime.of(date, currentTime);
+		*/
 		
 	}
 

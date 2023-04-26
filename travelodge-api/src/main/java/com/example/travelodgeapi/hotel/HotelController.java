@@ -6,12 +6,9 @@ import java.util.Optional;
 
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.*;
 
-import org.apache.catalina.User;
-import org.hibernate.validator.constraints.URL;
 import org.springframework.hateoas.EntityModel;
 import org.springframework.hateoas.server.mvc.WebMvcLinkBuilder;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -22,6 +19,8 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import com.example.travelodgeapi.price.Price;
 import com.example.travelodgeapi.price.PriceService;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonMappingException;
 
 import jakarta.validation.Valid;
 
@@ -43,7 +42,40 @@ public class HotelController {
 	public Iterable<Hotel> retrieveAllHotels() {
 		return hotelService.getHotels();
 	}
+	
+	
+	@GetMapping("/hotels/updateAll")
+	public Iterable<Hotel> downloadAllHotelsDetails() {
+		hotelService.downloadAllHotelsDetails();
+		return hotelService.getHotels();
+	}
 
+	
+	@GetMapping("/hotel_code/{code}")
+	public EntityModel<Hotel> retrieveHotelByCode(@PathVariable String code) {
+		Optional<Hotel> hotel = hotelService.getHotelByCode(code);
+		if (hotel.isEmpty()) {
+			throw new HotelNotFoundException("Hotel with code:" + code + " doesn't exist");
+		}
+		EntityModel<Hotel> entityModel = EntityModel.of(hotel.get());
+		WebMvcLinkBuilder link = linkTo(methodOn(this.getClass()).retrieveAllHotels());
+		entityModel.add(link.withRel("all-hotels"));
+		return entityModel;
+	}
+	
+	
+	@GetMapping("/hotels/{hotelId}/livePrices")
+	public List<Price> downloadPricesForHotel(@PathVariable long hotelId) throws JsonMappingException, JsonProcessingException {
+		Optional<Hotel> hotelOptional = hotelService.getHotelById(hotelId);
+		if (hotelOptional.isEmpty()) {
+			throw new HotelNotFoundException("Hotel with id:" + hotelId + " doesn't exist");
+		}
+		Hotel hotel = hotelOptional.get();
+		priceService.downloadPrices(hotel);
+		return hotelOptional.get().getPrice();
+	}
+	
+	
 	@GetMapping("/hotels/{id}")
 	public EntityModel<Hotel> retrieveHotel(@PathVariable long id) {
 		Optional<Hotel> hotel = hotelService.getHotelById(id);
@@ -55,6 +87,8 @@ public class HotelController {
 		entityModel.add(link.withRel("all-hotels"));
 		return entityModel;
 	}
+	
+	
 
 	@DeleteMapping("/hotels/{id}")
 	public void deleteHotel(@PathVariable long id) {
@@ -62,7 +96,7 @@ public class HotelController {
 	}
 
 	@GetMapping("/hotels/{id}/prices")
-	public List<Price> retrivePricesForHotel(@PathVariable long id) {
+	public List<Price> getPricesForHotel(@PathVariable long id) {
 		Optional<Hotel> hotel = hotelService.getHotelById(id);
 		if (hotel.isEmpty()) {
 			throw new HotelNotFoundException("Hotel with id:" + id + " doesn't exist");
@@ -92,5 +126,4 @@ public class HotelController {
 				.buildAndExpand(savedHotel.getId()).toUri();
 		return ResponseEntity.created(locationUrl).build();
 	}
-
 }
