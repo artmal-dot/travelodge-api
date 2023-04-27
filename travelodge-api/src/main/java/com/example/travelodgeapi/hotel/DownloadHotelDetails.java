@@ -27,7 +27,7 @@ public class DownloadHotelDetails {
 		ObjectMapper objectMapper = new ObjectMapper();
 		JsonNode jsonNode = objectMapper.readTree(jsonString);
 		JsonNode jsonHotels = jsonNode.get("results");
-		System.out.println("Size: "+jsonHotels.size());
+//		System.out.println("Size: "+jsonHotels.size());
 		return jsonHotels;
 	}
 
@@ -97,10 +97,10 @@ public class DownloadHotelDetails {
 //		iterator.forEachRemaining(e -> keys.add(e));
 //		System.out.println(keys);
 		JsonNode jsonHotels = extractHotelDetailsFromResponse(getResponse(url + "0"));
-		System.out.println("after 1st extracting");
+//		System.out.println("after 1st extracting");
 		addHotelsToMap(jsonHotels, hotelsDetailsMap);
-		System.out.println("after 1st mapping");
-		printAllKeys(jsonHotels);
+//		System.out.println("after 1st mapping");
+//		printAllKeys(jsonHotels);
 		int start = 0;
 		while (jsonHotels.size() > 0) {
 			start += 10;

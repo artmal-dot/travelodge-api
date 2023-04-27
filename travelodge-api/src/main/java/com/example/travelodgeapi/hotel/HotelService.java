@@ -14,16 +14,12 @@ public class HotelService {
 		return hotelRepository.findAll();
 	}
 
-	public void downloadAllHotelsDetails(){
-		DownloadHotelDetails.getAllHotelsDetails();			
+	public void downloadAllHotelsDetails() {
+		DownloadHotelDetails.getAllHotelsDetails();
 		hotelRepository.saveAll(DownloadHotelDetails.hotelsDetailsList);
 	}
-	
-	public Optional<Hotel> getHotelByCode(String code) {
-		return Optional.ofNullable(hotelRepository.findByCode(code));
-	}
-	
-	
+
+
 
 	public Hotel createHotel(Hotel hotel) {
 		return hotelRepository.save(hotel);

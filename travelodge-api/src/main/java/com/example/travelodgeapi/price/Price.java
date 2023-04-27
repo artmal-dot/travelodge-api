@@ -33,13 +33,6 @@ public class Price {
 		super();
 	}
 
-	/**
-	 * @param id
-	 * @param date
-	 * @param price
-	 * @param availabilityStatus
-	 * @param hotel
-	 */
 	public Price(Long id, LocalDate date, BigDecimal price, boolean availabilityStatus, String url,LocalDateTime lastUpdatedDateTime, Hotel hotel) {
 		super();
 		this.id = id;

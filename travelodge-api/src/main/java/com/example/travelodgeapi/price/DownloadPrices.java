@@ -118,7 +118,7 @@ public class DownloadPrices {
 	 static void  downloadPrices(Hotel hotel) throws JsonMappingException, JsonProcessingException {
 
 	//	getHotelPrices(hotel, LocalDate.parse("2024-01-01"), LocalDate.parse("2024-01-11"));
-			getHotelPrices(hotel, LocalDate.now(), LocalDate.parse("2023-05-11"));
+			getHotelPrices(hotel, LocalDate.now(), LocalDate.now().plusWeeks(1));
 
 	}
 

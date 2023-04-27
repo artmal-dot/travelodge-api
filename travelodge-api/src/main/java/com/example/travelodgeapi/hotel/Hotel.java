@@ -40,16 +40,6 @@ public class Hotel {
 		super();
 	}
 
-	/**
-	 * @param id
-	 * @param code
-	 * @param title
-	 * @param hotelUrl
-	 * @param latitude
-	 * @param longitude
-	 * @param lastUpdatedDate
-	 * @param price
-	 */
 	public Hotel(Long id, @Size(min = 2, max = 10) String code, String title, String hotelUrl, double latitude,
 			double longitude, LocalDate lastUpdated) {
 		super();
@@ -129,8 +119,6 @@ public class Hotel {
 	@Override
 	public String toString() {
 		return "Hotel [id=" + id + ", code=" + code + ", title=" + title + ", hotelUrl=" + hotelUrl + ", latitude="
-				+ latitude + ", longitude=" + longitude + ", lastUpdated=" + lastUpdated + ", price=" + price
-				+ "]";
+				+ latitude + ", longitude=" + longitude + ", lastUpdated=" + lastUpdated + ", price=" + price + "]";
 	}
-
 }
