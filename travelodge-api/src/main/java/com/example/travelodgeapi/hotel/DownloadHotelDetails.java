@@ -2,11 +2,14 @@ package com.example.travelodgeapi.hotel;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+
+import org.hibernate.engine.jdbc.batch.spi.Batch;
 
 //import org.jsoup.Jsoup;
 
@@ -19,7 +22,8 @@ import static com.example.travelodgeapi.util.Tools.*;
 
 public class DownloadHotelDetails {
 	static Map<Integer, Map<String, String>> hotelsDetailsMap = new HashMap<>();
-	static List<Hotel> hotelsDetailsList = new ArrayList<>();
+	static List<Hotel> hotelsDetailsList = Collections.synchronizedList(new ArrayList<Hotel>());
+	static final int MAX_NUMBER_HOTELS = 10;
 
 	private static JsonNode extractHotelDetailsFromResponse(String jsonString)
 			throws JsonProcessingException, JsonMappingException {
@@ -96,17 +100,23 @@ public class DownloadHotelDetails {
 //		Iterator<String> iterator = jsonNode.fieldNames();
 //		iterator.forEachRemaining(e -> keys.add(e));
 //		System.out.println(keys);
-		JsonNode jsonHotels = extractHotelDetailsFromResponse(getResponse(url + "0"));
+//		JsonNode jsonHotels = extractHotelDetailsFromResponse(getResponse(url + "0"));
+		//max =10
+		int maxBatch =12;
+		JsonNode jsonHotels = extractHotelDetailsFromResponse(getResponse(url + String.valueOf(maxBatch)));
 //		System.out.println("after 1st extracting");
 		addHotelsToMap(jsonHotels, hotelsDetailsMap);
 //		System.out.println("after 1st mapping");
 //		printAllKeys(jsonHotels);
+		
 		int start = 0;
-		while (jsonHotels.size() > 0) {
+		while (jsonHotels.size() > 0 && hotelsDetailsList.size()<MAX_NUMBER_HOTELS ) {
 			start += 10;
 			jsonHotels = extractHotelDetailsFromResponse(getResponse(url + String.valueOf(start)));
 			addHotelsToMap(jsonHotels, hotelsDetailsMap);
 		}
+		
+		
 	}
 
 	private static String createUrl() {
@@ -114,7 +124,8 @@ public class DownloadHotelDetails {
 		// "https://www.travelodge.co.uk/api/v2/hotel?checkIn=2023-04-29&checkOut=2023-04-30&q=london&rooms[0][adults]=1&rooms[0][children]=0&sb=0&start=";
 		final String url = "https://www.travelodge.co.uk/api/v2/hotel?checkIn=" + getUTCdate().plusMonths(1)
 				+ "&checkOut=" + getUTCdate().plusDays(1).plusMonths(1)
-				+ "&q=london&rooms[0][adults]=1&rooms[0][children]=0&sb=0&start=";
+		//		+ "&q=london&rooms[0][adults]=1&rooms[0][children]=0&sb=0&start=";
+				+ "&q=ealing&rooms[0][adults]=1&rooms[0][children]=0&sb=0&start=";
 		return url;
 	}
 	public static void getAllHotelsDetails(){

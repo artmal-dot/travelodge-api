@@ -4,6 +4,7 @@ import java.net.URI;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -25,10 +26,20 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import org.springframework.web.util.UriComponents;
 import org.springframework.http.HttpHeaders;
 
+import com.example.travelodgeapi.oldPrice.OldPrice;
+import com.example.travelodgeapi.oldPrice.OldPriceServie;
+import com.example.travelodgeapi.oldPrice.OldPriceSpringDataJPARepository;
 import com.example.travelodgeapi.price.Price;
 import com.example.travelodgeapi.price.PriceService;
+import com.example.travelodgeapi.util.Tools;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonMappingException;
+import com.example.travelodgeapi.hotel.Hotel;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonMappingException;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import jakarta.validation.Valid;
 
@@ -39,10 +50,12 @@ public class HotelController {
 
 	private HotelService hotelService;
 	private PriceService priceService;
+	private OldPriceServie oldPriceService;
 
-	public HotelController(HotelService hotelService, PriceService priceService) {
+	public HotelController(HotelService hotelService, PriceService priceService, OldPriceServie oldPriceService) {
 		this.hotelService = hotelService;
 		this.priceService = priceService;
+		this.oldPriceService = oldPriceService;
 	}
 
 	@GetMapping("/hotels")
@@ -61,11 +74,34 @@ public class HotelController {
 			throws JsonMappingException, JsonProcessingException {
 		Optional<Hotel> hotelOptional = hotelService.getHotelById(hotelId);
 		if (hotelOptional.isEmpty()) {
-			throw new HotelNotFoundException("Hotel with id:" + hotelId + " doesn't exist");
+			throw new HotelExceptions("Hotel with id:" + hotelId + " doesn't exist");
 		}
 		Hotel hotel = hotelOptional.get();
 		priceService.downloadPrices(hotel);
 		return hotelOptional.get().getPrice();
+	}
+
+	@GetMapping("/hotels/downloadAllPrices")
+	public ResponseEntity<String> downloadAllPricesForAllHotels() throws JsonMappingException, JsonProcessingException {
+
+		Iterable<Hotel> hotelsList = hotelService.getHotels();
+		for (Hotel hotel : hotelsList) {
+			priceService.downloadPrices(hotel);
+		}
+		// create `ObjectMapper` instance
+		ObjectMapper mapper = new ObjectMapper();
+
+		// create a JSON object
+		ObjectNode message = mapper.createObjectNode();
+
+		message.put("message", "All prices for all hotels has been updated");
+
+		// convert `ObjectNode` to pretty-print JSON
+		// without pretty-print, use `user.toString()` method
+		String json = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(message);
+
+		return ResponseEntity.ok(json);
+
 	}
 
 	@GetMapping(value = "/hotels/{id}/prices", produces = "application/json")
@@ -73,27 +109,50 @@ public class HotelController {
 			@RequestParam Map<String, String> customQuery) {
 		Optional<Hotel> hotel = hotelService.getHotelById(id);
 		if (hotel.isEmpty()) {
-			throw new HotelNotFoundException("Hotel with id:" + id + " doesn't exist");
+			throw new HotelExceptions("Hotel with id:" + id + " doesn't exist");
 		}
 
 		List<Price> prices = null;
 		HttpHeaders headers = new HttpHeaders();
 		headers.add("Content-Type", "application/json");
 		if (customQuery.containsKey("from") && (customQuery.containsKey("to"))) {
-			LocalDate dateFrom = LocalDate.parse(customQuery.get("from"));
-			LocalDate dateTo = LocalDate.parse(customQuery.get("to"));
-			prices = priceService.getPriceForDate(hotel.get(), dateFrom, dateTo);
+			LocalDate dateFrom = Tools.isDateCorrect(customQuery.get("from"));
+			LocalDate dateTo = Tools.isDateCorrect(customQuery.get("to"));
+
+			prices = priceService.getPricesForDates(hotel.get(), dateFrom, dateTo);
 			if (!prices.isEmpty()) {
 				URI locationUrl = ServletUriComponentsBuilder.fromCurrentRequest().path("")
 						.buildAndExpand(hotel.get().getId()).toUri();
-
 				headers.setLocation(locationUrl);
-
-				return new ResponseEntity<List<Price>>(prices, headers, HttpStatus.OK);
 			}
-		}
+		} else
+			throw new HotelExceptions("Please provide dates in query");
 		return new ResponseEntity<>(prices, headers, HttpStatus.OK);
+	}
 
+	@GetMapping(value = "/hotels/{id}/priceHistory", produces = "application/json")
+	public ResponseEntity<List<OldPrice>> getOldPricesForHotel(@PathVariable long id,
+			@RequestParam Map<String, String> customerDate) {
+
+		Optional<Hotel> hotel = hotelService.getHotelById(id);
+		if (hotel.isEmpty()) {
+			throw new HotelExceptions("Hotel with id:" + id + " doesn't exist");
+		}
+		LocalDate date = Tools.isDateCorrect(customerDate.get("date"));
+		List<Price> prices = priceService.getPricesForDates(hotel.get(), date, date);
+		if (prices.isEmpty()) {
+			throw new HotelExceptions("Current price for hotel_id " + id + " for " + date + " doesn't exist");
+		}
+		if (prices.size() > 1) {
+			throw new HotelExceptions("Error: more then one current price for Hotel with id:" + id + " for " + date);
+		}
+
+		Price price = priceService.getPricesForDates(hotel.get(), date, date).get(0);
+		List<OldPrice> oldPrices = oldPriceService.getOldPricesForDate(price);
+
+		HttpHeaders headers = new HttpHeaders();
+		headers.add("Content-Type", "application/json");
+		return new ResponseEntity<>(oldPrices, headers, HttpStatus.OK);
 	}
 
 	// returns all prices from DB
@@ -101,7 +160,7 @@ public class HotelController {
 	public EntityModel<Hotel> retrieveHotel(@PathVariable long id) {
 		Optional<Hotel> hotel = hotelService.getHotelById(id);
 		if (hotel.isEmpty()) {
-			throw new HotelNotFoundException("Hotel with id:" + id + " doesn't exist");
+			throw new HotelExceptions("Hotel with id:" + id + " doesn't exist");
 		}
 		EntityModel<Hotel> entityModel = EntityModel.of(hotel.get());
 		WebMvcLinkBuilder link = linkTo(methodOn(this.getClass()).retrieveAllHotels());
@@ -118,16 +177,16 @@ public class HotelController {
 	public List<Price> getPricesForHotel(@PathVariable long id) {
 		Optional<Hotel> hotel = hotelService.getHotelById(id);
 		if (hotel.isEmpty()) {
-			throw new HotelNotFoundException("Hotel with id:" + id + " doesn't exist");
+			throw new HotelExceptions("Hotel with id:" + id + " doesn't exist");
 		}
 		return hotel.get().getPrice();
 	}
 
-	@PostMapping("/hotels/{id}/pricess")
+	@PostMapping("/hotels/{id}/allPrices")
 	public ResponseEntity<Object> createPriceForHotel(@PathVariable long id, @Valid @RequestBody Price price) {
 		Optional<Hotel> hotel = hotelService.getHotelById(id);
 		if (hotel.isEmpty()) {
-			throw new HotelNotFoundException("Hotel with id:" + id + " doesn't exist");
+			throw new HotelExceptions("Hotel with id:" + id + " doesn't exist");
 		}
 		price.setHotel(hotel.get());
 		Price savedPrice = priceService.creatPrice(price);

@@ -19,8 +19,6 @@ public class HotelService {
 		hotelRepository.saveAll(DownloadHotelDetails.hotelsDetailsList);
 	}
 
-
-
 	public Hotel createHotel(Hotel hotel) {
 		return hotelRepository.save(hotel);
 	}

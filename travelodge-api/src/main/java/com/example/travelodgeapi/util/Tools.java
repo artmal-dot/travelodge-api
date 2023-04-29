@@ -9,6 +9,7 @@ import java.time.format.DateTimeParseException;
 
 import org.jsoup.Jsoup;
 
+import com.example.travelodgeapi.hotel.HotelExceptions;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 
@@ -50,6 +51,16 @@ public final class Tools {
 			e.printStackTrace();
 		}
 		return json;
+	}
+	
+	public static LocalDate isDateCorrect (String dateString ) {
+		LocalDate date;
+		try {
+			 date = LocalDate.parse(dateString);
+		} catch (Exception e) {
+			throw new HotelExceptions("Date " + dateString + " is not correct. Correct format is YYYY-MM-DD");
+		}	
+		return date;
 	}
 
 	public static void main(String[] args) throws JsonMappingException, JsonProcessingException {

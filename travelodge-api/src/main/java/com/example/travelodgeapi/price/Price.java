@@ -3,22 +3,25 @@ package com.example.travelodgeapi.price;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.List;
 
 import com.example.travelodgeapi.hotel.Hotel;
+import com.example.travelodgeapi.oldPrice.OldPrice;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
 
 @Entity
 public class Price {
 	@Id
 	@GeneratedValue
-	private Long id;
-	
+	private Long id;	
 	private LocalDate date;
 	private BigDecimal price;
 	private boolean hasAvailability;
@@ -29,6 +32,10 @@ public class Price {
 	@JsonIgnore
 	private Hotel hotel;
 
+	@OneToMany(mappedBy = "currentPrice")
+	@JsonIgnore
+	private List<OldPrice> oldPrice;	
+	
 	public Price() {
 		super();
 	}
