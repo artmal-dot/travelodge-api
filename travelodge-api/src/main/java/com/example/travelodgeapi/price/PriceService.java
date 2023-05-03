@@ -58,7 +58,7 @@ public class PriceService {
 				if (currentPrice.getPrice().compareTo(downloadedPrice.getPrice()) == 0) {
 					currentPrice.setLastUpdated(downloadedPrice.getLastUpdated());
 					priceRepository.save(currentPrice);
-					priceRepository.flush();
+//					priceRepository.flush();
 				} else {
 					OldPrice oldPrice = new OldPrice();
 					oldPrice.setCurrentPrice(currentPrice);
@@ -71,7 +71,7 @@ public class PriceService {
 					currentPrice.setLastUpdated(downloadedPrice.getLastUpdated());
 					currentPrice.setPrice(downloadedPrice.getPrice());
 					priceRepository.save(currentPrice);
-					priceRepository.flush();
+//					priceRepository.flush();
 				}
 			}
 		}

@@ -16,8 +16,8 @@ public interface PriceSpringDataJPARepository extends JpaRepository<Price, Long>
 	public List<Price> findByHotelAndDateBetweenOrderByDate(@Param("hotel") Hotel hotel,
 			@Param("dateFrom") LocalDate dateFrom, @Param("dateTo") LocalDate dateTo);
 
-	public Price findByHotelAndDate(@Param("hotel") Hotel hotel,
-			@Param("date") LocalDate date);
+//	public Price findByHotelAndDate(@Param("hotel") Hotel hotel,
+//			@Param("date") LocalDate date);
 	
 	public List<Price> getAllByHotel(Hotel hotel);
 }

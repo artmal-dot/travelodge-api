@@ -2,9 +2,6 @@ package com.example.travelodgeapi.hotel;
 
 import java.net.URI;
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -23,21 +20,15 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
-import org.springframework.web.util.UriComponents;
 import org.springframework.http.HttpHeaders;
 
 import com.example.travelodgeapi.oldPrice.OldPrice;
 import com.example.travelodgeapi.oldPrice.OldPriceServie;
-import com.example.travelodgeapi.oldPrice.OldPriceSpringDataJPARepository;
 import com.example.travelodgeapi.price.Price;
 import com.example.travelodgeapi.price.PriceService;
 import com.example.travelodgeapi.util.Tools;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonMappingException;
-import com.example.travelodgeapi.hotel.Hotel;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonMappingException;
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
@@ -83,7 +74,7 @@ public class HotelController {
 
 	@GetMapping("/hotels/downloadAllPrices")
 	public ResponseEntity<String> downloadAllPricesForAllHotels() throws JsonMappingException, JsonProcessingException {
-
+		long start = System.currentTimeMillis();
 		Iterable<Hotel> hotelsList = hotelService.getHotels();
 		for (Hotel hotel : hotelsList) {
 			priceService.downloadPrices(hotel);
@@ -94,13 +85,14 @@ public class HotelController {
 		// create a JSON object
 		ObjectNode message = mapper.createObjectNode();
 
-		message.put("message", "All prices for all hotels has been updated");
+		message.put("message", "All prices for all hotels has been updated in " +  (System.currentTimeMillis()-start) + " ms" );
 
 		// convert `ObjectNode` to pretty-print JSON
 		// without pretty-print, use `user.toString()` method
 		String json = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(message);
-
-		return ResponseEntity.ok(json);
+		HttpHeaders headers = new HttpHeaders();
+		headers.add("Content-Type", "application/json");
+		return new ResponseEntity<>(json, headers, HttpStatus.OK);
 
 	}
 

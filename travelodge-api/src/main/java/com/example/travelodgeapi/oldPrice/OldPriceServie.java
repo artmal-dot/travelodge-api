@@ -16,5 +16,4 @@ public class OldPriceServie {
 	public List<OldPrice>getOldPricesForDate(Price curentPrice){
 		return oldPriceSpringDataJPARepository.findAllByCurrentPrice(curentPrice);
 	}
-
 }

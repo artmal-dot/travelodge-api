@@ -23,7 +23,7 @@ import static com.example.travelodgeapi.util.Tools.*;
 public class DownloadHotelDetails {
 	static Map<Integer, Map<String, String>> hotelsDetailsMap = new HashMap<>();
 	static List<Hotel> hotelsDetailsList = Collections.synchronizedList(new ArrayList<Hotel>());
-	static final int MAX_NUMBER_HOTELS = 10;
+	static final int MAX_NUMBER_HOTELS = 2;
 
 	private static JsonNode extractHotelDetailsFromResponse(String jsonString)
 			throws JsonProcessingException, JsonMappingException {
@@ -70,8 +70,11 @@ public class DownloadHotelDetails {
 			hotelDetailsMap.put("updated", UTCdate.toString());
 			hotel.setLastUpdatedDate(UTCdate);
 
-			hotelMap.put(jsonHotel.get("id").intValue(), hotelDetailsMap);
+
+				hotelMap.put(jsonHotel.get("id").intValue(), hotelDetailsMap);
+
 			hotel.setId(jsonHotel.get("id").longValue());
+			if (hotelsDetailsList.size()<MAX_NUMBER_HOTELS) 
 			hotelsDetailsList.add(hotel);
 		}
 	}
@@ -110,13 +113,11 @@ public class DownloadHotelDetails {
 //		printAllKeys(jsonHotels);
 		
 		int start = 0;
-		while (jsonHotels.size() > 0 && hotelsDetailsList.size()<MAX_NUMBER_HOTELS ) {
+		while (jsonHotels.size() > 0 ) {
 			start += 10;
 			jsonHotels = extractHotelDetailsFromResponse(getResponse(url + String.valueOf(start)));
 			addHotelsToMap(jsonHotels, hotelsDetailsMap);
 		}
-		
-		
 	}
 
 	private static String createUrl() {
@@ -132,13 +133,10 @@ public class DownloadHotelDetails {
 		try {
 			createHotelsDetailMap();
 		} catch (JsonMappingException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} catch (JsonProcessingException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}		
-		
 	}
 
 	public static void main(String[] args) throws JsonMappingException, JsonProcessingException {
