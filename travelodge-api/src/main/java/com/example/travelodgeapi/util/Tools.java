@@ -10,13 +10,11 @@ import java.time.format.DateTimeParseException;
 import org.jsoup.Jsoup;
 
 import com.example.travelodgeapi.hotel.HotelExceptions;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonMappingException;
 
 public final class Tools {
 	static final String CUSTOM_PATTERN = "yyyy-MM-dd";
 	static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern(CUSTOM_PATTERN);
-	
+
 	public static LocalDate getUTCdate() {
 		Instant instant = Instant.now();
 		LocalDate date = instant.atZone(ZoneOffset.UTC).toLocalDate();
@@ -31,7 +29,7 @@ public final class Tools {
 		LocalTime UTCtime = LocalTime.parse(formattedTime, timeFormatter);
 		return UTCtime;
 	}
-	
+
 	public static LocalDate isValidLocalDate(String dateStr) {
 		LocalDate date = null;
 		try {
@@ -52,15 +50,15 @@ public final class Tools {
 		}
 		return json;
 	}
-	
-	public static LocalDate isDateCorrect (String dateString ) {
+
+	public static LocalDate isDateCorrect(String dateString) {
 		LocalDate date;
 		try {
-			 date = LocalDate.parse(dateString);
+			date = LocalDate.parse(dateString);
 		} catch (Exception e) {
 			throw new HotelExceptions("Date " + dateString + " is not correct. Correct format is YYYY-MM-DD");
-		}	
+		}
 		return date;
 	}
-	
+
 }

@@ -14,17 +14,14 @@ import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 public class DownloadPrices {
 	static Map<String, Map<String, String>> hotelPricesMap = new LinkedHashMap<>();
 	static List<Price> createHotelPricesList = Collections.synchronizedList(new ArrayList<>());
-	static Set<LocalDate> dates = Collections.synchronizedSet(new HashSet<>());
-	static final int MAX_NUMBER_OF_WEEKS_AHEAD = 10000;
+	static final int MAX_NUMBER_OF_WEEKS_AHEAD = 1;
 
 	private static String createUrl(String hotelCode, String date, int batchSize) {
 		// max for limit is 11, minimum is 1
@@ -81,7 +78,7 @@ public class DownloadPrices {
 			price.setLastUpdated(LocalDateTime.now(ZoneOffset.UTC).withNano(0));
 
 			hotelPricesMap.put(jsonPrice.get("date").toString(), hotelPriceMap);
-			if (dates.add(LocalDate.parse(date)))
+		
 				createHotelPricesList.add(price);
 		}
 	}
@@ -127,7 +124,7 @@ public class DownloadPrices {
 		System.out
 				.println(LocalDateTime.now().withNano(0)+" Downloading prices for hotel with code " + hotel.getCode() + " ( id: " + hotel.getId() + ")"+"["+dateFrom+" - "+ dateTo+"]");
 		createHotelPricesList = Collections.synchronizedList(new ArrayList<>());
-		dates = Collections.synchronizedSet(new HashSet<>());
+		
 		getHotelPrices(hotel, dateFrom, dateTo);
 	}
 

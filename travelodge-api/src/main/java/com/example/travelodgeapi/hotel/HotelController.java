@@ -90,18 +90,12 @@ public class HotelController {
 			throw new HotelExceptions("Hotels with :" + name + " in their name don't exist");
 		}
 		
-
-		
-		
 		CollectionModel<Hotel> entityModel = CollectionModel.of(hotels);
 		WebMvcLinkBuilder link = linkTo(methodOn(this.getClass()).retrieveAllHotels());
 		entityModel.add(link.withRel("all-hotels"));
 		return entityModel;
 	}
 	
-	
-	
-
 	@DeleteMapping("/hotels/{id}")
 	public void deleteHotel(@PathVariable long id) {
 		hotelService.deleteHotelById(id);
@@ -133,9 +127,9 @@ public class HotelController {
 		// create a JSON object
 		ObjectNode message = mapper.createObjectNode();
 		System.out.println(
-				"All prices for all hotels has been updated in " + (System.currentTimeMillis() - start) / 1000 + " s");
+				"All prices for all hotels have been updated in " + (System.currentTimeMillis() - start) / 1000 + " s");
 		message.put("message",
-				"All prices for all hotels has been updated in " + (System.currentTimeMillis() - start) / 1000 + " s");
+				"All prices for all hotels have been updated in " + (System.currentTimeMillis() - start) / 1000 + " s");
 
 		// convert `ObjectNode` to pretty-print JSON
 		// without pretty-print, use `user.toString()` method

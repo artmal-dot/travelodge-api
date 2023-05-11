@@ -3,10 +3,8 @@ package com.example.travelodgeapi.price;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -14,7 +12,6 @@ import org.springframework.stereotype.Service;
 import com.example.travelodgeapi.hotel.Hotel;
 import com.example.travelodgeapi.hotel.HotelExceptions;
 import com.example.travelodgeapi.oldPrice.OldPrice;
-import com.example.travelodgeapi.oldPrice.OldPriceServie;
 import com.example.travelodgeapi.oldPrice.OldPriceSpringDataJPARepository;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonMappingException;
