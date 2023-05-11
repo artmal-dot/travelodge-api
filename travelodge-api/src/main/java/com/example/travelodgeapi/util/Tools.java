@@ -62,9 +62,5 @@ public final class Tools {
 		}	
 		return date;
 	}
-
-	public static void main(String[] args) throws JsonMappingException, JsonProcessingException {
-	System.out.println(isValidLocalDate("2022-01-10"));
-
-	}
+	
 }

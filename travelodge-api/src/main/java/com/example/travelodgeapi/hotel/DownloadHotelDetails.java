@@ -5,13 +5,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-
-import org.hibernate.engine.jdbc.batch.spi.Batch;
-
-//import org.jsoup.Jsoup;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonMappingException;
@@ -23,7 +18,7 @@ import static com.example.travelodgeapi.util.Tools.*;
 public class DownloadHotelDetails {
 	static Map<Integer, Map<String, String>> hotelsDetailsMap = new HashMap<>();
 	static List<Hotel> hotelsDetailsList = Collections.synchronizedList(new ArrayList<Hotel>());
-	static final int MAX_NUMBER_HOTELS = 2;
+	static final int MAX_NUMBER_HOTELS = 200;
 
 	private static JsonNode extractHotelDetailsFromResponse(String jsonString)
 			throws JsonProcessingException, JsonMappingException {
@@ -125,8 +120,8 @@ public class DownloadHotelDetails {
 		// "https://www.travelodge.co.uk/api/v2/hotel?checkIn=2023-04-29&checkOut=2023-04-30&q=london&rooms[0][adults]=1&rooms[0][children]=0&sb=0&start=";
 		final String url = "https://www.travelodge.co.uk/api/v2/hotel?checkIn=" + getUTCdate().plusMonths(1)
 				+ "&checkOut=" + getUTCdate().plusDays(1).plusMonths(1)
-		//		+ "&q=london&rooms[0][adults]=1&rooms[0][children]=0&sb=0&start=";
-				+ "&q=ealing&rooms[0][adults]=1&rooms[0][children]=0&sb=0&start=";
+				+ "&q=london&rooms[0][adults]=1&rooms[0][children]=0&sb=0&start=";
+		//		+ "&q=ealing&rooms[0][adults]=1&rooms[0][children]=0&sb=0&start=";
 		return url;
 	}
 	public static void getAllHotelsDetails(){

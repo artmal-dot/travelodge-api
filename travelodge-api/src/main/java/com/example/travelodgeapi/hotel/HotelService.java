@@ -1,5 +1,6 @@
 package com.example.travelodgeapi.hotel;
 
+import java.util.List;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,6 +13,10 @@ public class HotelService {
 
 	public Iterable<Hotel> getHotels() {
 		return hotelRepository.findAll();
+	}
+	
+	public List<Hotel> getHotelsWithName(String name) {
+		return hotelRepository.findByTitleContaining(name);
 	}
 
 	public void downloadAllHotelsDetails() {

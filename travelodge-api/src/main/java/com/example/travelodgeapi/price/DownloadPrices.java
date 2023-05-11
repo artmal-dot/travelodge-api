@@ -23,9 +23,9 @@ import java.util.Set;
 public class DownloadPrices {
 	static Map<String, Map<String, String>> hotelPricesMap = new LinkedHashMap<>();
 	static List<Price> createHotelPricesList = Collections.synchronizedList(new ArrayList<>());
-	static Set<LocalDate> dates = Collections.synchronizedSet(new HashSet<>()); 
-	static final int MAX_NUMBER_OF_WEEKS_AHEAD = 0;
-	
+	static Set<LocalDate> dates = Collections.synchronizedSet(new HashSet<>());
+	static final int MAX_NUMBER_OF_WEEKS_AHEAD = 10000;
+
 	private static String createUrl(String hotelCode, String date, int batchSize) {
 		// max for limit is 11, minimum is 1
 		String urlString = "https://www.travelodge.co.uk/api/v1/hotel/rates?limit=" + String.valueOf(batchSize)
@@ -48,12 +48,11 @@ public class DownloadPrices {
 	private static void buildPricesMapFromOneResponse(JsonNode jsonPrices, Hotel hotel) {
 //		System.out.println(jsonPrices);
 		for (JsonNode jsonPrice : jsonPrices) {
-		
 
 			Map<String, String> hotelPriceMap = new LinkedHashMap<>();
 			Price price = new Price();
 			String availabilityStatus = jsonPrice.get("availabilityStatus").toString();
-			if ( "\"available\"".equals(availabilityStatus)) {
+			if ("\"available\"".equals(availabilityStatus)) {
 				hotelPriceMap.put("price", jsonPrice.get("price").get("amount").toString());
 				price.setAvailabilityStatus(true);
 				price.setPrice(BigDecimal.valueOf(jsonPrice.get("price").get("amount").asDouble()));
@@ -65,17 +64,17 @@ public class DownloadPrices {
 			hotelPriceMap.put("availabilityStatus", jsonPrice.get("availabilityStatus").toString());
 
 			String url = jsonPrice.get("url").toString();
-			url = url.substring(1, url.length()-1);
-			
+			url = url.substring(1, url.length() - 1);
+
 			hotelPriceMap.put("url", url);
 			price.setUrl(url);
 
 			hotelPriceMap.put("updatedDate", getUTCdate().toString());
 			hotelPriceMap.put("updatedTime", getUTCTime().toString());
-			
+
 			String date = jsonPrice.get("date").toString();
-			date = date.substring(1, date.length()-1);
-			
+			date = date.substring(1, date.length() - 1);
+
 			price.setDate(LocalDate.parse(date));
 			price.setHotel(hotel);
 
@@ -87,28 +86,24 @@ public class DownloadPrices {
 		}
 	}
 
-	private static void getHotelPrices(Hotel hotel, LocalDate dateFrom, LocalDate dateTo) throws JsonMappingException, JsonProcessingException
-			 {
+	private static void getHotelPrices(Hotel hotel, LocalDate dateFrom, LocalDate dateTo)
+			throws JsonMappingException, JsonProcessingException {
 		LocalDate today = getUTCdate();
 		LocalDate date = dateFrom;
 
 		// max is 11, min is 1
 		// max dateTo is today plus 354
 		int batchSize = 11;
-//		System.out.println(hotel.getCode());
-		
-		
-		
-//		String url = createUrl(String.valueOf("GB0738"), date.toString(), batchSize);
-		
+
 		String url = createUrl(hotel.getCode(), date.toString(), batchSize);
 
 		JsonNode jsonHotelPrices = extractPricesResponse(getResponse(url));
 		buildPricesMapFromOneResponse(jsonHotelPrices, hotel);
 		boolean notLastBatch = true;
-		date = date.plusDays(batchSize+batchSize/2);
-		while (notLastBatch && (jsonHotelPrices.size() > 0) && dateTo.isAfter (date.minusDays(batchSize+batchSize/2-4))) {
-			
+		date = date.plusDays(batchSize + batchSize / 2);
+		while (notLastBatch && (jsonHotelPrices.size() > 0)
+				&& dateTo.isAfter(date.minusDays(batchSize + batchSize / 2 - 4))) {
+
 			if (date.isAfter(today.plusDays(354))) {
 				date = today.plusDays(354 - 5);
 				notLastBatch = false;
@@ -126,18 +121,19 @@ public class DownloadPrices {
 		}
 	}
 
-	 static void  downloadPrices(Hotel hotel) throws JsonMappingException, JsonProcessingException {
-
-
-		 createHotelPricesList = Collections.synchronizedList(new ArrayList<>());
+	static void downloadPrices(Hotel hotel) throws JsonMappingException, JsonProcessingException {
+		LocalDate dateFrom = LocalDate.now();
+		LocalDate dateTo = LocalDate.now().plusWeeks(MAX_NUMBER_OF_WEEKS_AHEAD);
+		System.out
+				.println(LocalDateTime.now().withNano(0)+" Downloading prices for hotel with code " + hotel.getCode() + " ( id: " + hotel.getId() + ")"+"["+dateFrom+" - "+ dateTo+"]");
+		createHotelPricesList = Collections.synchronizedList(new ArrayList<>());
 		dates = Collections.synchronizedSet(new HashSet<>());
-		getHotelPrices(hotel, LocalDate.now(), LocalDate.now().plusWeeks(MAX_NUMBER_OF_WEEKS_AHEAD));
-//		getHotelPrices(hotel, LocalDate.parse("2024-04-03"), LocalDate.now().plusWeeks(MAX_NUMBER_OF_WEEKS_AHEAD));
+		getHotelPrices(hotel, dateFrom, dateTo);
 	}
 
 	public static void main(String[] args) throws JsonMappingException, JsonProcessingException {
 		String hotelCode = "GB0960";
-		Hotel hotel = new Hotel(1L, hotelCode, "Ealing", "URL sadwsadas",0.11, 32.2222, LocalDate.parse("2024-01-01"));
+		Hotel hotel = new Hotel(1L, hotelCode, "Ealing", "URL sadwsadas", 0.11, 32.2222, LocalDate.parse("2024-01-01"));
 		getHotelPrices(hotel, LocalDate.parse("2023-05-03"), LocalDate.parse("2025-01-11"));
 		printHotelPrices(hotelPricesMap);
 		System.out.println(hotelPricesMap.size());

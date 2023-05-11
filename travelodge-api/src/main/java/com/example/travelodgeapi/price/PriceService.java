@@ -52,7 +52,7 @@ public class PriceService {
 				priceRepository.save(downloadedPrice);
 				priceRepository.flush();
 			} else if (currentPriceForDate.size() > 1) {
-				throw new HotelExceptions("Fore then 1 current price for the date"+hotel.getId());
+				throw new HotelExceptions("More then 1 current price for the date "+hotel.getId());
 			} else {
 				Price currentPrice = currentPriceForDate.get(0);
 				if (currentPrice.getPrice().compareTo(downloadedPrice.getPrice()) == 0) {
@@ -75,7 +75,6 @@ public class PriceService {
 				}
 			}
 		}
-//		priceRepository.saveAll(DownloadPrices.createHotelPricesList);
 	}
 
 	public void downloadPricesOld(Hotel hotel) throws JsonMappingException, JsonProcessingException {
