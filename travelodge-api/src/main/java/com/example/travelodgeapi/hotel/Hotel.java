@@ -18,7 +18,6 @@ public class Hotel {
 //	@JsonProperty("id")
 	private Long id;
 //	@JsonIgnore
-//	@JsonProperty("hotelika_codzik")
 	@Size(min = 2, max = 10)
 //	@Column(name = "hotelCode")
 	private String code;

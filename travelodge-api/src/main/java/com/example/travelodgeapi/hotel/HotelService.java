@@ -10,18 +10,20 @@ import org.springframework.stereotype.Service;
 public class HotelService {
 	@Autowired
 	private HotelSpringDataJPARepository hotelRepository;
+	@Autowired
+	private DownloadHotelDetails downloadHotelDetails;
 
 	public Iterable<Hotel> getHotels() {
 		return hotelRepository.findAll();
 	}
-	
+
 	public List<Hotel> getHotelsWithName(String name) {
 		return hotelRepository.findByTitleContaining(name);
 	}
 
 	public void downloadAllHotelsDetails() {
-		DownloadHotelDetails.getAllHotelsDetails();
-		hotelRepository.saveAll(DownloadHotelDetails.hotelsDetailsList);
+		downloadHotelDetails.downloadAllHotelsDetails();
+		hotelRepository.saveAll(downloadHotelDetails.getHotelsDetailsList());
 	}
 
 	public Hotel createHotel(Hotel hotel) {
