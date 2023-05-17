@@ -14,14 +14,11 @@ import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
 
 public class DownloadPrices {
-	static Map<String, Map<String, String>> hotelPricesMap = new LinkedHashMap<>();
-	static List<Price> createHotelPricesList = Collections.synchronizedList(new ArrayList<>());
-	static final int MAX_NUMBER_OF_WEEKS_AHEAD = 1;
+	static List<Price> hotelPricesList = Collections.synchronizedList(new ArrayList<>());
+	static final int NUMBER_OF_WEEKS_AHEAD = 222;
 
 	private static String createUrl(String hotelCode, String date, int batchSize) {
 		// max for limit is 11, minimum is 1
@@ -46,11 +43,12 @@ public class DownloadPrices {
 //		System.out.println(jsonPrices);
 		for (JsonNode jsonPrice : jsonPrices) {
 
-			Map<String, String> hotelPriceMap = new LinkedHashMap<>();
+//			System.out.println(jsonPrice);
+			
 			Price price = new Price();
 			String availabilityStatus = jsonPrice.get("availabilityStatus").toString();
 			if ("\"available\"".equals(availabilityStatus)) {
-				hotelPriceMap.put("price", jsonPrice.get("price").get("amount").toString());
+
 				price.setAvailabilityStatus(true);
 				price.setPrice(BigDecimal.valueOf(jsonPrice.get("price").get("amount").asDouble()));
 			} else {
@@ -58,16 +56,11 @@ public class DownloadPrices {
 				price.setPrice(BigDecimal.valueOf(-1));
 
 			}
-			hotelPriceMap.put("availabilityStatus", jsonPrice.get("availabilityStatus").toString());
 
 			String url = jsonPrice.get("url").toString();
 			url = url.substring(1, url.length() - 1);
 
-			hotelPriceMap.put("url", url);
 			price.setUrl(url);
-
-			hotelPriceMap.put("updatedDate", getUTCdate().toString());
-			hotelPriceMap.put("updatedTime", getUTCTime().toString());
 
 			String date = jsonPrice.get("date").toString();
 			date = date.substring(1, date.length() - 1);
@@ -76,10 +69,8 @@ public class DownloadPrices {
 			price.setHotel(hotel);
 
 			price.setLastUpdated(LocalDateTime.now(ZoneOffset.UTC).withNano(0));
-
-			hotelPricesMap.put(jsonPrice.get("date").toString(), hotelPriceMap);
-		
-				createHotelPricesList.add(price);
+//			System.out.println(price.isAvailabilityStatus());
+			hotelPricesList.add(price);
 		}
 	}
 
@@ -100,7 +91,6 @@ public class DownloadPrices {
 		date = date.plusDays(batchSize + batchSize / 2);
 		while (notLastBatch && (jsonHotelPrices.size() > 0)
 				&& dateTo.isAfter(date.minusDays(batchSize + batchSize / 2 - 4))) {
-
 			if (date.isAfter(today.plusDays(354))) {
 				date = today.plusDays(354 - 5);
 				notLastBatch = false;
@@ -112,29 +102,17 @@ public class DownloadPrices {
 		}
 	}
 
-	private static void printHotelPrices(Map<String, Map<String, String>> hotelMap) {
-		for (var entry : hotelMap.entrySet()) {
-			System.out.println(entry.getKey() + ": " + entry.getValue());
-		}
-	}
-
 	static void downloadPrices(Hotel hotel) throws JsonMappingException, JsonProcessingException {
 		LocalDate dateFrom = LocalDate.now();
-		LocalDate dateTo = LocalDate.now().plusWeeks(MAX_NUMBER_OF_WEEKS_AHEAD);
-		System.out
-				.println(LocalDateTime.now().withNano(0)+" Downloading prices for hotel with code " + hotel.getCode() + " ( id: " + hotel.getId() + ")"+"["+dateFrom+" - "+ dateTo+"]");
-		createHotelPricesList = Collections.synchronizedList(new ArrayList<>());
-		
-		getHotelPrices(hotel, dateFrom, dateTo);
-	}
+		LocalDate dateTo = LocalDate.now().plusWeeks(NUMBER_OF_WEEKS_AHEAD);
+		if (dateTo.isAfter(dateFrom.plusDays(354))) {
+			dateTo = dateFrom.plusDays(354);
+		}
+		System.out.println(LocalDateTime.now().withNano(0) + " Downloading prices for hotel with code "
+				+ hotel.getCode() + " ( id: " + hotel.getId() + ")" + "[" + dateFrom + " - " + dateTo + "]");
+		hotelPricesList = Collections.synchronizedList(new ArrayList<>());
 
-	public static void main(String[] args) throws JsonMappingException, JsonProcessingException {
-		String hotelCode = "GB0960";
-		Hotel hotel = new Hotel(1L, hotelCode, "Ealing", "URL sadwsadas", 0.11, 32.2222, LocalDate.parse("2024-01-01"));
-		getHotelPrices(hotel, LocalDate.parse("2023-05-03"), LocalDate.parse("2025-01-11"));
-		printHotelPrices(hotelPricesMap);
-		System.out.println(hotelPricesMap.size());
-		System.out.println(LocalDate.parse("2023-04-24").plusDays(354));
-		System.out.println(LocalDateTime.now(ZoneOffset.UTC));
+		getHotelPrices(hotel, dateFrom, dateTo);
+		System.out.println(LocalDateTime.now().withNano(0) + " Downloading prices completed"				);
 	}
 }

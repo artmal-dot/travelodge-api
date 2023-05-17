@@ -1,6 +1,9 @@
 package com.example.travelodgeapi.price;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
+import java.time.chrono.ChronoLocalDate;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedList;
@@ -37,25 +40,25 @@ public class PriceService {
 		 * PRICE will be updated
 		 * 
 		 */
+		ChronoLocalDate mostDistantDateWithChange = LocalDate.from(ZonedDateTime.now().minusDays(1));
 		DownloadPrices.downloadPrices(hotel);
 		List<Price> dowloadedPricesForHotel = Collections.synchronizedList(new ArrayList<>());
-		dowloadedPricesForHotel = DownloadPrices.createHotelPricesList;
+		dowloadedPricesForHotel = DownloadPrices.hotelPricesList;
 
 		for (Price downloadedPrice : dowloadedPricesForHotel) {
-
+//			System.out.println(downloadedPrice.isAvailabilityStatus());
 			List<Price> currentPriceForDate = priceRepository.findByHotelAndDateBetweenOrderByDate(hotel,
 					downloadedPrice.getDate(), downloadedPrice.getDate());
 			if (currentPriceForDate.isEmpty()) {
-				priceRepository.save(downloadedPrice);
-				priceRepository.flush();
+				priceRepository.save(downloadedPrice);				
 			} else if (currentPriceForDate.size() > 1) {
-				throw new HotelExceptions("More then 1 current price for the date "+hotel.getId());
+				throw new HotelExceptions("More then 1 current price for the date " + hotel.getId());
 			} else {
 				Price currentPrice = currentPriceForDate.get(0);
 				if (currentPrice.getPrice().compareTo(downloadedPrice.getPrice()) == 0) {
 					currentPrice.setLastUpdated(downloadedPrice.getLastUpdated());
+					currentPrice.setAvailabilityStatus(downloadedPrice.getAvailabilityStatus());
 					priceRepository.save(currentPrice);
-//					priceRepository.flush();
 				} else {
 					OldPrice oldPrice = new OldPrice();
 					oldPrice.setCurrentPrice(currentPrice);
@@ -63,20 +66,25 @@ public class PriceService {
 					oldPrice.setPrice(currentPrice.getPrice());
 					oldPriceRepository.save(oldPrice);
 
-					currentPrice.setAvailabilityStatus(downloadedPrice.isAvailabilityStatus());
+					currentPrice.setAvailabilityStatus(downloadedPrice.getAvailabilityStatus());
 					currentPrice.setDate(downloadedPrice.getDate());
 					currentPrice.setLastUpdated(downloadedPrice.getLastUpdated());
 					currentPrice.setPrice(downloadedPrice.getPrice());
 					priceRepository.save(currentPrice);
-//					priceRepository.flush();
+					if (currentPrice.getDate().isAfter(mostDistantDateWithChange)) {
+						mostDistantDateWithChange = currentPrice.getDate();
+					}
+				//	System.out.println(currentPrice.getDate()+" diffrence is " + (downloadedPrice.getPrice().subtract(oldPrice.getPrice())));					
 				}
 			}
+		
 		}
+			System.out.println(mostDistantDateWithChange);
 	}
 
 	public void downloadPricesOld(Hotel hotel) throws JsonMappingException, JsonProcessingException {
 		DownloadPrices.downloadPrices(hotel);
-		priceRepository.saveAll(DownloadPrices.createHotelPricesList);
+		priceRepository.saveAll(DownloadPrices.hotelPricesList);
 	}
 
 	public List<Price> getPricesForDates(Hotel hotel, LocalDate dateFrom, LocalDate dateTo) {

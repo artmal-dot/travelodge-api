@@ -24,7 +24,7 @@ public class Price {
 	private Long id;	
 	private LocalDate date;
 	private BigDecimal price;
-	private boolean hasAvailability;
+	private boolean isAvailable;
 	private String url;
 	private LocalDateTime lastUpdated;
 	
@@ -40,12 +40,12 @@ public class Price {
 		super();
 	}
 
-	public Price(Long id, LocalDate date, BigDecimal price, boolean availabilityStatus, String url,LocalDateTime lastUpdatedDateTime, Hotel hotel) {
+	public Price(Long id, LocalDate date, BigDecimal price, boolean isAvailable, String url,LocalDateTime lastUpdatedDateTime, Hotel hotel) {
 		super();
 		this.id = id;
 		this.date = date;
 		this.price = price;
-		this.hasAvailability = availabilityStatus;
+		this.isAvailable = isAvailable;
 		this.hotel = hotel;
 		this.url = url;
 		this.lastUpdated = lastUpdatedDateTime;
@@ -75,12 +75,12 @@ public class Price {
 		this.price = price;
 	}
 
-	public boolean isAvailabilityStatus() {
-		return hasAvailability;
+	public boolean getAvailabilityStatus	() {
+		return isAvailable;
 	}
 
-	public void setAvailabilityStatus(boolean availabilityStatus) {
-		this.hasAvailability = availabilityStatus;
+	public void setAvailabilityStatus(boolean isAvailable) {
+		this.isAvailable = isAvailable;
 	}
 
 	public Hotel getHotel() {
@@ -110,13 +110,7 @@ public class Price {
 
 	@Override
 	public String toString() {
-		return "Price [id=" + id + ", date=" + date + ", price=" + price + ", hasAvailability=" + hasAvailability
+		return "Price [id=" + id + ", date=" + date + ", price=" + price + ", isAvailable=" + isAvailable
 				+ ", url=" + url + ", lastUpdated=" + lastUpdated + ", hotel=" + hotel + "]";
 	}
-
-
-
-
-	
-
 }

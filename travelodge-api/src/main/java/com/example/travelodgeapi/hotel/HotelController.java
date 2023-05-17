@@ -117,7 +117,7 @@ public class HotelController {
 	public ResponseEntity<String> downloadAllPricesForAllHotels() throws JsonMappingException, JsonProcessingException {
 		long start = System.currentTimeMillis();
 		Iterable<Hotel> hotelsList = hotelService.getHotels();
-		System.out.println("***Starting downloading ");
+		System.out.println("*** Downloading all prices for all hotels");
 		for (Hotel hotel : hotelsList) {
 			priceService.downloadPrices(hotel);
 		}
