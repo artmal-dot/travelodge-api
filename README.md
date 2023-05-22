@@ -1,3 +1,5 @@
+
+</head>
 <body lang="en-GB" link="#000080" vlink="#800000" dir="ltr"><p style="line-height: 100%; margin-bottom: 0cm">
 <font size="3" style="font-size: 12pt"><span style="font-weight: normal">Travelodge</span></font><font size="3" style="font-size: 12pt">
 – </font><font size="3" style="font-size: 12pt"><span style="font-weight: normal">the
